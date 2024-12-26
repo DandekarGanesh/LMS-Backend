@@ -3,6 +3,7 @@ import User from '../models/user.model.js';
 import { razorpay } from '../server.js';
 import crypto from 'crypto';
 import Payment from '../models/payment.model.js';
+import moment from 'moment';  // Convert Unix timestamp to date
 
 
 const getRazorpayApiKey = async (req, res, next) => {
@@ -38,8 +39,6 @@ const buySubscription = async (req, res, next) => {
             plan_id: process.env.RAZORPAY_PLAN_ID,
             customer_notify: 1,
             total_count: 1,
-            // start_at: Date.now(), 
-            // expire_by: Date.now() + 15 * 60 * 60 * 60
         });
 
         // const plan_id = process.env.RAZORPAY_PLAN_ID;
@@ -161,15 +160,34 @@ const allPayments = async (req, res, next) => {
         const subscriptions = await razorpay.subscriptions.all({
             count: count || 10,
         });
-    
+
+        // let finalMonths = 0;
+
+        // for(let sub in subscriptions.items) {
+        //     const subData = subscriptions.items[sub];
+
+        //     const startDate = moment.unix(subData.current_start);  // Convert Unix timestamp to date
+        //     const endDate = moment.unix(subData.current_end);
+
+        //     const durationInDays = endDate.diff(startDate, 'days');
+
+        //     if(durationInDays <= 30) {
+        //         // finalMonths.push(subData);
+        //         finalMonths++;
+        //     }
+        // }
+
+        // console.log(subscriptions.items[0].plan);
+        // console.log("finalMonths :",finalMonths);
        
         res.status(200).json({
             success: true,
             message: 'All payments',
-            subscriptions
+            subscriptions,
         });
 
     } catch(err) {
+        console.log(err.message);
         return next(new AppError(err.message, 500));
     }
 }

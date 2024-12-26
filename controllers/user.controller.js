@@ -194,7 +194,7 @@ const forgotPassword = async (req, res, next) => {
 
     // sendEmail
     const sub = "Reset Password";
-    const message = `reset your password ...... ${process.env.FRONTEND_URL}/reset/${resetToken}`;
+    const message = `reset your password ...... ${process.env.FRONTEND_URL}/reset?resetToken=${resetToken}`;
 
     try {
         await sendEmail(email, sub, message);
@@ -232,15 +232,21 @@ const resetPassword = async (req, res, next) => {
         .update(resetToken)
         .digest('hex');
 
+
     const user = await User.findOne({
         forgotPasswordToken,
         forgotPasswordExpiry: { $gt: Date.now() }
     });
 
 
+    
+
     if(!user) {
         return next(new AppError('token is invalid or expire, please try again', 400));
     }
+
+
+    
 
     user.password = password;
     user.forgotPasswordToken = undefined;
@@ -273,7 +279,7 @@ const changePassword = async (req,res, next) => {
     const isPasswordValid = await user.comparePassword(oldPassword);
 
     if(!isPasswordValid) {
-        return next(new AppError('Invalid old password', 400));
+        return next(new AppError('Old password does not match', 400));
     }
 
     user.password = newPassword;
@@ -294,6 +300,8 @@ const updateUser = async (req, res, next) => {
     const { fullName } = req.body;
     const { id } = req.user;
 
+    try {
+
     const user = await User.findById(id);
 
     if(!user) {
@@ -304,14 +312,12 @@ const updateUser = async (req, res, next) => {
         user.fullName = fullName;
     }
 
-    console.log(req.file);
 
     if(req.file) {
         if(user?.avatar?.public_id) {
             await cloudinary.v2.uploader.destroy(user.avatar.public_id);
         }
     
-        try {
             const result = await cloudinary.v2.uploader.upload(req.file.path, {
                 folder: 'lms',
                 width: 250,
@@ -327,16 +333,16 @@ const updateUser = async (req, res, next) => {
                 // remove file from local (uploads)
                 fs.rm(`uploads/${req.file.filename}`);
             }
-
-        } catch(err) {
-            console.log("error pt-1");
-            return next(new AppError(err || 'file not uploaded, please try again', 500));
-        }
         
     }
 
 
-    await user.save();  
+     await user.save();  
+
+    } catch(err) {
+        console.log("error pt-1");
+        return next(new AppError(err || 'file not uploaded, please try again', 500));
+    }
 
     res.status(200).json({
         success: true,

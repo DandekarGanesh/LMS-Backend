@@ -34,7 +34,6 @@ router.route('/:id')
        );
 
 
-
 router.route("/:courseId/:lectureId")
         .delete(
             isLoggedIn,

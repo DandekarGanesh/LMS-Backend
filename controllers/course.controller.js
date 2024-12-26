@@ -34,6 +34,9 @@ const getLecturesByCourseId = async (req,res, next) => {
             return next(new AppError('Invalid course id', 500));
         }
 
+        // console.log("lectures");
+        // console.log(course.lectures);
+
         res.status(200).send({
             success: true,
             message: 'Course lectures fetched successfully',
@@ -193,7 +196,9 @@ const addLectureToCourseById = async (req, res, next) => {
         if(req.file) {
 
             const result = await cloudinary.v2.uploader.upload(req.file.path, {
-                folder: 'lms'
+                folder: 'lms',
+                chunk_size: 50000000, // 50 mb size of video
+                resource_type: 'video',
             });    
     
             if(result) {
@@ -219,6 +224,7 @@ const addLectureToCourseById = async (req, res, next) => {
         });
         
     } catch(err) {
+        console.log(err.message);
         next(new AppError(err.message, 500));
     }
 
@@ -230,7 +236,7 @@ const addLectureToCourseById = async (req, res, next) => {
 const removeLectureById = async (req,res, next) => {
     try {
         const { courseId, lectureId } = req.params;
-        
+
         const course = await Course.findById(courseId);
         const lectures = course.lectures.filter((lec) => lec._id != lectureId);
 
