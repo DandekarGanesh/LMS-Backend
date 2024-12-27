@@ -7,7 +7,7 @@ const connectionToDB = async () => {
     try {
 
         const { connection } = await mongoose.connect(
-            process.env.Mongo_URL, { useNewUrlParser: true }
+            process.env.MONGO_URL
         );
     
         if(connection) {
