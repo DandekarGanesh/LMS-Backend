@@ -6,7 +6,7 @@ const connectionToDB = async () => {
 
     try {
         const { connection } = await mongoose.connect(
-            process.env.Mongo_URL
+            process.env.Mongo_URL || 'mongodb://localhost/lms'
         );
     
         if(connection) {
