@@ -5,8 +5,9 @@ mongoose.set('strictQuery', false); // on wrong query dont give error just ignor
 const connectionToDB = async () => {
 
     try {
+
         const { connection } = await mongoose.connect(
-            process.env.Mongo_URL || 'mongodb://localhost/lms'
+            process.env.Mongo_URL
         );
     
         if(connection) {
