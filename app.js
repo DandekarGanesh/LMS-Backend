@@ -12,10 +12,55 @@ import errorMiddleware from './middlewares/error.middleware.js';
 config();
 const app = express();
 
+// app.use(cors({
+//     origin: process.env.FRONTEND_URL,
+//     credentials: true
+// }));
+
+
+const allowedOrigins = process.env.FRONTEND_URL;
+
 app.use(cors({
-    origin: process.env.FRONTEND_URL,
-    credentials: true
-}));
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+  
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true, // Allow cookies
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "Accept",
+      "Origin",
+      "X-Requested-With",
+      "Access-Control-Allow-Origin",
+      "Access-Control-Allow-Credentials",
+      "Access-Control-Allow-Methods",
+      "Access-Control-Allow-Headers"
+    ],
+    exposedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "Access-Control-Allow-Origin",
+      "Access-Control-Allow-Credentials",
+      "Access-Control-Allow-Methods",
+      "Access-Control-Allow-Headers"
+    ],
+    preflightContinue: false,
+    optionsSuccessStatus: 204
+  }));
+  
+  
+  
+  // Handle preflight requests for all routes
+  app.options('*', cors()); // Automatically handles preflight requests
+
 
 
 app.use(express.json());
