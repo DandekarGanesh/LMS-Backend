@@ -18,7 +18,7 @@ const app = express();
 // }));
 
 
-const allowedOrigins = process.env.FRONTEND_URL;
+const allowedOrigins = "https://lms-frontend-amber.vercel.app/";
 
 app.use(cors({
     origin: function (origin, callback) {
@@ -52,7 +52,7 @@ app.use(cors({
       "Access-Control-Allow-Methods",
       "Access-Control-Allow-Headers"
     ],
-    preflightContinue: false,
+    preflightContinue: false ,
     optionsSuccessStatus: 204
   }));
   
